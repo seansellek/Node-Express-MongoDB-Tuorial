@@ -188,9 +188,15 @@ function editUser(event) {
 	$('#inputUserGender').val(thisUser['gender']);
 	
 	//Swap Buttons
-	var submitButtons = '<button id="btnCancelEdit">Cancel</button><button id="btnEditUser" data-id="'+thisUserId+'">Submit</button>';
-	$('#addUser fieldset').append(submitButtons);
-	$('#btnAddUser').remove();
+	if ($('#btnAddUser').length) {
+		var submitButtons = '<button id="btnCancelEdit">Cancel</button><button id="btnEditUser">Submit</button>';
+		$('#addUser fieldset').append(submitButtons);
+		$('#btnEditUser').data({'id' : thisUserId});
+		$('#btnAddUser').remove();
+	} else {
+		$('#btnEditUser').data({'id' : thisUserId});
+	};
+
 	
 	//Rename form
 	$('h2:contains("Add User")').html('Edit User');
