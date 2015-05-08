@@ -11,13 +11,19 @@ $(document).ready(function() {
 	$('#userList table tbody').on('click', 'td a.linkshowuser', showUserInfo);
 	
 	// Add User button click
-	$('#btnAddUser').on('click', addUser);
+	$('#addUser fieldset').on('click', '#btnAddUser', addUser);
 	
 	// Delete User link click
 	$('#userList table tbody').on('click', 'td a.linkdeleteuser', deleteUser);
 	
 	// Edit User Link click
 	$('#userList table tbody').on('click', 'td a.linkedituser', editUser);
+	
+	// Submit User Edit
+	$('#addUser fieldset').on('click', '#btnEditUser', submitEdit);
+	
+	// Cancel User Edit
+	$('#addUser fieldset').on('click', '#btnCancelEdit', cancelEdit);
 });
 
 // Functions ==================================================================================================
@@ -159,4 +165,103 @@ function deleteUser(event) {
 		// If they aid no to the confirm, do nothing
 		return false;
 	}
+};
+
+//Edit User
+function editUser(event) {
+	
+	event.preventDefault();
+	
+	//get User Info
+	var thisUserId = $(this).attr('rel');
+	var arrayPosition = userListData.map(function(arrayItem){
+		return arrayItem._id;
+	}).indexOf(thisUserId);
+	var thisUser = userListData[arrayPosition];
+	
+	//Populate form
+	$('#inputUserName').val(thisUser['username']);
+	$('#inputUserEmail').val(thisUser['email']);
+	$('#inputUserFullname').val(thisUser['fullname']);
+	$('#inputUserAge').val(thisUser['age']);
+	$('#inputUserLocation').val(thisUser['location']);
+	$('#inputUserGender').val(thisUser['gender']);
+	
+	//Swap Buttons
+	var submitButtons = '<button id="btnCancelEdit">Cancel</button><button id="btnEditUser" data-id="'+thisUserId+'">Submit</button>';
+	$('#addUser fieldset').append(submitButtons);
+	$('#btnAddUser').remove();
+	
+	//Rename form
+	$('h2:contains("Add User")').html('Edit User');
+};
+
+//Cancel Edit
+function cancelEdit(event) {
+	console.log('hey!');
+	//clear form
+	$('#addUser fieldset input').val('');
+	
+	//Switch buttons back
+	$('#btnCancelEdit').remove();
+	$('#btnEditUser').remove();
+	$('#addUser fieldset').append('<button id="btnAddUser">Add User</button>');
+	
+	//change form title back
+	$('h2:contains("Edit User")').html('Add User');
+};
+
+//Submit Edit
+function submitEdit(event) {
+	var userToEdit= $('#btnEditUser').data("id");
+	
+	var errorCount = 0;
+	$('#addUser input').each(function(index, val) {
+		if($(this).val() === '') { errorCount++; }
+	});
+	
+	// Check if errorCount is still at zero
+	if(errorCount === 0) {
+		
+		//Compile all user info into one object
+		var userUpdate = {
+			'username' : $('#addUser fieldset input#inputUserName').val(),
+			'email' : $('#addUser fieldset input#inputUserEmail').val(),
+			'fullname' : $('#addUser fieldset input#inputUserFullname').val(),
+			'age' : $('#addUser fieldset input#inputUserAge').val(),
+			'location' : $('#addUser fieldset input#inputUserLocation').val(),
+			'gender' : $('#addUser fieldset input#inputUserGender').val(),
+		};
+		
+		// Use AJAX to post the object to our adduser service
+		$.ajax({
+			type : 'PUT',
+			data : userUpdate,
+			url : '/users/edituser/' + userToEdit,
+			dataType : 'JSON'
+		}).done(function( response ) {
+			
+			// Check for successful (blank) response
+			if (response.msg === '') {
+				
+				// Clear the form inputs
+				cancelEdit();
+				
+				// Update the table
+				populateTable();
+			}
+			else {
+				
+				// IF something goes wrong, alert the error message that our service returned
+				alert('Error: ' + response.msg);
+				
+			}
+		});
+	}
+	else {
+		// If errorCount is more than 0, error out
+		alert('Please fill in all fields');
+		return false;
+	};
+	
 };
