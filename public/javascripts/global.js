@@ -24,6 +24,9 @@ $(document).ready(function() {
 	
 	// Cancel User Edit
 	$('#addUser fieldset').on('click', '#btnCancelEdit', cancelEdit);
+	
+	// Search Form Typed In
+	$('#inputSearch').on('input', searchForm);
 });
 
 // Functions ==================================================================================================
@@ -204,7 +207,6 @@ function editUser(event) {
 
 //Cancel Edit
 function cancelEdit(event) {
-	console.log('hey!');
 	//clear form
 	$('#addUser fieldset input').val('');
 	
@@ -271,3 +273,39 @@ function submitEdit(event) {
 	};
 	
 };
+
+// Search Form
+function searchForm(event) {
+	// get search query
+	var query = $('#inputSearch').val();
+	// create empty array to store search results (as user index in userListData)
+	var results = [];
+	
+	// check if there is a search being performed
+	if(query) {
+		//iterate over each user in the userListData array
+		for (var i = 0, len = userListData.length; i < len; i++) {
+			//iterate over each attribute of the current user
+			for (var attr in userListData[i]) {
+				//check if attribute contains search query
+				if (userListData[i][attr].toString().indexOf(query)>-1) {
+					//if it does, add user's index to the results array
+					results.push(i);
+				}
+			};
+		};
+		
+		//clear previous search results
+		$('#userList table tbody tr td').removeClass('searched');
+		
+		//add the 'searched' class to the row of each user in the results array
+		$.each(results, function(i,val) {
+			var row = val + 1;
+			$('#userList table tbody tr:nth-of-type('+row+') td').addClass('searched');
+		});
+	//if there is no longer a search being performed
+	} else {
+		//clear search results
+		$('#userList table tbody tr td').removeClass('searched');
+	}
+}

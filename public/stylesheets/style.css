@@ -56,3 +56,10 @@ fieldset {
 	border:0;
 	padding:0; margin:0;
 }
+
+#search {
+	margin: 0 0 24px 0;
+}
+#userList table tbody tr .searched {
+	background-color: powderblue;
+}
