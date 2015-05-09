@@ -287,8 +287,11 @@ function searchForm(event) {
 		for (var i = 0, len = userListData.length; i < len; i++) {
 			//iterate over each attribute of the current user
 			for (var attr in userListData[i]) {
-				//check if attribute contains search query
-				if (userListData[i][attr].toString().indexOf(query)>-1) {
+				// do not include id in search (id should be hidden from user)
+				if (attr==="_id") {
+					continue;
+				// check if query is included in attribute
+				} else if (userListData[i][attr].toString().indexOf(query)>-1) {
 					//if it does, add user's index to the results array
 					results.push(i);
 				}
